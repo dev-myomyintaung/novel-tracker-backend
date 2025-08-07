@@ -2,7 +2,7 @@ import {Request, Response, NextFunction} from "express";
 import {login, register} from "../services/auth.service";
 import passport from "./../services/passport.service";
 
-const {FRONTEND_URL} = process.env;
+const {FRONTEND_URL, JWT_EXPIRES_IN} = process.env;
 
 export const registerUser = async(req: Request, res: Response, next: NextFunction)=> {
     try{
@@ -42,8 +42,8 @@ export const handleSocialLoginCallback   = async(req: Request, res: Response)=>{
     res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 3600 * 1000 // 1h
+        sameSite: 'none',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.redirect(`${FRONTEND_URL!}/`);
 }
