@@ -53,18 +53,9 @@ app.use("/api/v1/genres", authenticateToken, GenreRoute);
 app.use("/api/v1/tags", authenticateToken, TagRoute);
 app.use("/api/v1/notes", authenticateToken, NoteRoute);
 app.use("/api/v1/novels", authenticateToken, NovelRoute);
-
-// Protected “me” endpoint
-app.get('/api/v1/me', async (req: Request, res: Response) => {
-    const token = req.cookies.token;
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
-    try {
-        const payload: any = jwt.verify(token, process.env.JWT_SECRET!);
-        const user = await prisma.user.findUnique({ where: { id: payload.id } });
-        res.json(user);
-    } catch {
-        res.status(401).json({ error: 'Invalid token' });
-    }
+app.get('/api/v1/me', authenticateToken, async (req: Request, res: Response) => {
+    const { user } = req;
+    res.json(user);
 });
 
 
