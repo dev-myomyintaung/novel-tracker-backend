@@ -37,6 +37,17 @@ app.get('/', (req, res) => {
     res.send('✅ Server is live');
 });
 
+app.get('/health/db', async (req, res) => {
+    try {
+        await prisma.$connect();
+        res.send("✅ DB is reachable");
+    } catch (error) {
+        console.error("❌ Prisma DB Error:", error);
+        res.status(500).json({ error: String(error) });
+    }
+});
+
+
 app.use("/api/v1/auth", AuthRoute);
 app.use("/api/v1/genres", authenticateToken, GenreRoute);
 app.use("/api/v1/tags", authenticateToken, TagRoute);
