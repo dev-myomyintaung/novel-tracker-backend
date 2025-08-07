@@ -6,11 +6,11 @@ const prisma = new PrismaClient();
 
 async function main() {
     // 1️⃣ CLEAN OUT EXISTING DATA (idempotent)
-    await prisma.note.deleteMany();
-    await prisma.novel.deleteMany();
-    await prisma.genre.deleteMany();
-    await prisma.tag.deleteMany();
-    await prisma.user.deleteMany();
+    // await prisma.note.deleteMany();
+    // await prisma.novel.deleteMany();
+    // await prisma.genre.deleteMany();
+    // await prisma.tag.deleteMany();
+    // await prisma.user.deleteMany();
 
     // 2️⃣ PREPARE ONE HASHED PASSWORD
     const DEFAULT_PW = 'Password123';
