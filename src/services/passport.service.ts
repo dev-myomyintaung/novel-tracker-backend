@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
 import * as crypto from "node:crypto";
 
-const {GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, PORT, API_URL, JWT_SECRET} = process.env;
+const {GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, API_URL, JWT_SECRET, JWT_EXPIRES_IN} = process.env;
 
 interface VerifyOauthParams {
     provider: string;
@@ -79,7 +79,7 @@ async function verifyOauth({
         const token = jwt.sign(
             { id: user.id, email: user.email },
             JWT_SECRET!,
-            { expiresIn: '1h' }
+            { expiresIn: JWT_EXPIRES_IN as any || '7d'}
         );
         // Pass the token back to Passport
         done(null, `Bearer ${token}`);

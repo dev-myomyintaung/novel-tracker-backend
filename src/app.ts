@@ -33,6 +33,10 @@ app.use(morgan("dev"));
 app.use(express.urlencoded({extended: true}));
 
 app.use(express.json());
+app.get('/', (req, res) => {
+    res.send('✅ Server is live');
+});
+
 app.use("/api/v1/auth", AuthRoute);
 app.use("/api/v1/genres", authenticateToken, GenreRoute);
 app.use("/api/v1/tags", authenticateToken, TagRoute);
