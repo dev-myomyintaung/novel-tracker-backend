@@ -1,7 +1,8 @@
 import {Request, Response, NextFunction} from "express";
 import {login, register} from "../services/auth.service";
-import passport from "./../services/passport.service";
+import passport, {getProvider, scopesMap} from "./../services/passport.service";
 
+const isProd = process.env.NODE_ENV === 'production';
 const {FRONTEND_URL, JWT_EXPIRES_IN} = process.env;
 
 export const registerUser = async(req: Request, res: Response, next: NextFunction)=> {
@@ -24,26 +25,50 @@ export const loginUser = async(req: Request, res: Response, next: NextFunction)=
     }
 }
 
-// kicks off the redirect to the provider’s consent page
+// ENTRY: redirect to provider consent
 export const initiateSocialLogin  = async(req: Request, res: Response, next: NextFunction) =>{
    try{
        const {provider} = req.params;
-       const scopes = provider === 'google' ? ['profile', 'email'] : [];
+       const scopes = scopesMap[provider] ?? [];
        passport.authenticate(provider, {scope: scopes, session: false})(req, res, next);
    } catch (err) {
        next(err)
    }
 };
 
-// handles the callback once the user has authenticated with the provider
+// Authenticate a user with an OAuth provider
+export const oauthAuthenticator = (req: Request, res: Response, next: NextFunction) => {
+    const provider = getProvider(req.params.provider);
+    // call passport.authenticate with a string
+    passport.authenticate(provider, {
+        failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed`,
+        session: false
+    })(req, res, next);
+}
+
+// EXIT: provider callback → Passport populates req.user → finalize
 export const handleSocialLoginCallback   = async(req: Request, res: Response)=>{
     // passport handle set the token at req.user
     const token = req.user as unknown as string;
     res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite:  process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: isProd,
+        sameSite:  isProd ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/',
     });
     res.redirect(`${FRONTEND_URL!}/`);
 }
+
+export const logout = (req: Request, res: Response) => {
+    const isProd = process.env.NODE_ENV === 'production';
+
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+        path: '/',
+    });
+
+    return res.status(204).send();
+};
