@@ -3,7 +3,6 @@ import {login, register} from "../services/auth.service";
 import passport from "./../services/passport.service";
 import {getProvider, Provider, scopesMap} from "../services/common/passport.service";
 
-const isProd = process.env.NODE_ENV === 'production';
 const {FRONTEND_URL, JWT_EXPIRES_IN} = process.env;
 
 export const registerUser = async(req: Request, res: Response, next: NextFunction)=> {
@@ -51,6 +50,8 @@ export const oauthAuthenticator = (req: Request, res: Response, next: NextFuncti
 export const handleSocialLoginCallback   = async(req: Request, res: Response)=>{
     // passport handle set the token at req.user
     const token = req.user as unknown as string;
+    const isProd = process.env.NODE_ENV === 'production';
+
     res.cookie('token', token, {
         httpOnly: true,
         secure: isProd,
