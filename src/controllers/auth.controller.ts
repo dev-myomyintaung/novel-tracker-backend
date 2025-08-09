@@ -56,7 +56,6 @@ export const handleSocialLoginCallback   = async(req: Request, res: Response)=>{
         secure: isProd,
         sameSite:  isProd ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        path: '/',
     });
     res.redirect(`${FRONTEND_URL!}/`);
 }
@@ -68,7 +67,6 @@ export const logout = (req: Request, res: Response) => {
         httpOnly: true,
         secure: isProd,
         sameSite: isProd ? 'none' : 'lax',
-        path: '/',
     });
 
     return res.status(204).send();

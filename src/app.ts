@@ -14,7 +14,6 @@ import cors from "cors";
 import passport, { registerPassportStrategies } from "./services/passport.service";
 import cookieParser from "cookie-parser";
 import {prisma} from "./models/prisma-client";
-import jwt from "jsonwebtoken";
 
 dotenv.config();
 
