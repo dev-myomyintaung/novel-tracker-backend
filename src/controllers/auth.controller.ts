@@ -55,7 +55,7 @@ export const handleSocialLoginCallback   = async(req: Request, res: Response)=>{
     res.cookie('token', token, {
         httpOnly: true,
         secure: isProd,
-        sameSite:  isProd ? 'none' : 'lax',
+        sameSite:  'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.redirect(`${FRONTEND_URL!}/`);
@@ -67,7 +67,7 @@ export const logout = (req: Request, res: Response) => {
     res.clearCookie('token', {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? 'none' : 'lax',
+        sameSite: 'lax',
     });
 
     return res.status(204).send();
