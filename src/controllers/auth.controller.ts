@@ -1,6 +1,7 @@
 import {Request, Response, NextFunction} from "express";
 import {login, register} from "../services/auth.service";
-import passport, {getProvider, scopesMap} from "./../services/passport.service";
+import passport from "./../services/passport.service";
+import {getProvider, Provider, scopesMap} from "../services/common/passport.service";
 
 const isProd = process.env.NODE_ENV === 'production';
 const {FRONTEND_URL, JWT_EXPIRES_IN} = process.env;
@@ -29,7 +30,7 @@ export const loginUser = async(req: Request, res: Response, next: NextFunction)=
 export const initiateSocialLogin  = async(req: Request, res: Response, next: NextFunction) =>{
    try{
        const {provider} = req.params;
-       const scopes = scopesMap[provider] ?? [];
+       const scopes = scopesMap[provider]
        passport.authenticate(provider, {scope: scopes, session: false})(req, res, next);
    } catch (err) {
        next(err)

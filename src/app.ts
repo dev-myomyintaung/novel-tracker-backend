@@ -11,7 +11,7 @@ import UserRoute from "./routes/user.route";
 import dotenv from "dotenv";
 import authenticateToken from "./middlewares/authenticate-token";
 import cors from "cors";
-import passport from "./services/passport.service";
+import passport, { registerPassportStrategies } from "./services/passport.service";
 import cookieParser from "cookie-parser";
 import {prisma} from "./models/prisma-client";
 import jwt from "jsonwebtoken";
@@ -29,6 +29,8 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
+registerPassportStrategies();
+
 app.use(morgan("dev"));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
