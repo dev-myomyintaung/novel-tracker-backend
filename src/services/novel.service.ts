@@ -62,11 +62,20 @@ export const createNovel = async (data: CreateNovelInput) => {
       author: data.author,
       coverImageUrl: data.coverImageUrl,
       currentChapter: data.currentChapter,
-      rating: data.rating,
       sourceUrl: data.sourceUrl,
       status: data.status,
       totalChapters: data.totalChapters,
       title: data.title,
+      rating: {
+        create: {
+          score: data.rating,
+          user: {
+            connect: {
+              id: data.userId,
+            },
+          }
+        }
+      },
       user: {
         connect: {
           id: data.userId,
@@ -124,7 +133,27 @@ export const updateNovel = async (
       author: data.author,
       coverImageUrl: data.coverImageUrl,
       currentChapter: data.currentChapter,
-      rating: data.rating,
+      rating: {
+        update: {
+          data: {
+            score: data.rating,
+          },
+          where: {
+            userId_novelId: {
+              novelId: id,
+              userId: data.userId,
+            }
+          }
+        },
+        create: {
+          score: data.rating,
+          user: {
+            connect: {
+              id: data.userId,
+            },
+          }
+        }
+      },
       sourceUrl: data.sourceUrl,
       status: data.status,
       totalChapters: data.totalChapters,

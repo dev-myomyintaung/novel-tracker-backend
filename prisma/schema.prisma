@@ -29,6 +29,7 @@ model User {
   updatedAt DateTime  @updatedAt @map("updated_at")
   tags      Tag[]     @relation("CreatedBy")
   accounts  Account[]
+  Rating    Rating[]
 
   @@map("users")
 }
@@ -57,7 +58,6 @@ model Novel {
   status         ReadingStatus
   currentChapter Int           @default(1) @map("current_chapter")
   totalChapters  Int?          @map("total_chapters")
-  rating         Int?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -65,6 +65,7 @@ model Novel {
   notes  Note[]
   tags   NovelTag[]
   genres NovelGenre[]
+  rating Rating[]
 
   user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int?
@@ -132,4 +133,20 @@ model NovelGenre {
   @@unique([novelId, genreId])
   @@index([genreId])
   @@map("novel_genres")
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  score     Int?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  novel   Novel @relation(references: [id], fields: [novelId])
+  novelId Int   @map("novel_id")
+  user    User  @relation(references: [id], fields: [userId])
+  userId  Int   @map("user_id")
+
+  @@unique([userId, novelId])
+  @@index([novelId])
+  @@map("rating")
 }
