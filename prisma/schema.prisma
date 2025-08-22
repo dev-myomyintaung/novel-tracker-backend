@@ -29,7 +29,12 @@ model User {
   updatedAt DateTime  @updatedAt @map("updated_at")
   tags      Tag[]     @relation("CreatedBy")
   accounts  Account[]
-  Rating    Rating[]
+  rating    Rating[]
+  post      Post[]
+  like      Like[]
+  comment   Comment[]
+  Follow    Follow[]
+  Follow    Follow[]
 
   @@map("users")
 }
@@ -149,4 +154,102 @@ model Rating {
   @@unique([userId, novelId])
   @@index([novelId])
   @@map("rating")
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  content     String?  @db.Text
+  imageUrls   String[] @map("image_urls")
+  isPublished Boolean  @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Author
+  auther   User @relation(references: [id], fields: [authorId])
+  authorId Int  @map("author_id")
+
+  // Interactions
+  likes    Like[]
+  comments Comment[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Author
+  author   User @relation(references: [id], fields: [authorId])
+  authorId Int  @map("author_id")
+
+  // Post
+  post   Post @relation(references: [id], fields: [postId])
+  postId Int  @map("post_id")
+
+  // Nested replies
+  parent   Comment?  @relation("CommentReplies", references: [id], fields: [parentId])
+  parentId Int?      @map("parent_id")
+  replies  Comment[] @relation("CommentReplies")
+  Like     Like[]
+
+  @@map("comments")
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Acting User
+  user   User @relation(references: [id], fields: [userId])
+  userId Int  @map("user_id")
+
+  // Target (Post or Comment)
+  post   Post? @relation(references: [id], fields: [postId], onDelete: Cascade)
+  postId Int?  @map("post_id")
+
+  comment   Comment @relation(references: [id], fields: [commentId])
+  commentId Int     @map("comment_id")
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+  @@map("likes")
+}
+
+// Follow System
+model Follow {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Follower
+  follower   User @relation("UserFollowing", references: [id], fields: [followerId], onDelete: Cascade)
+  followerId Int  @map("follower_id")
+
+  following   User @relation("UserFollowers", references: [id], fields: [followingId], onDelete: Cascade)
+  followingId Int  @map("following_id")
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String // like, comment, follow, mention, etc.
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Related entities
+  postId    String?
+  commentId String?
+
+  sender   User   @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId String @map("sender_id")
+
+  receiver   User   @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId String @map("receiver_id")
+
+  @@map("notifications")
 }
