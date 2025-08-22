@@ -25,16 +25,18 @@ model User {
 
   novels Novel[]
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  tags      Tag[]     @relation("CreatedBy")
-  accounts  Account[]
-  rating    Rating[]
-  post      Post[]
-  like      Like[]
-  comment   Comment[]
-  Follow    Follow[]
-  Follow    Follow[]
+  createdAt            DateTime       @default(now()) @map("created_at")
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+  tags                 Tag[]          @relation("CreatedBy")
+  accounts             Account[]
+  ratings              Rating[]
+  posts                Post[]
+  likes                Like[]
+  comments             Comment[]
+  following            Follow[]       @relation("UserFollowing")
+  followers            Follow[]       @relation("UserFollowers")
+  sentNotifications    Notification[] @relation("NotificationSender")
+  receiveNotifications Notification[] @relation("NotificationReceiver")
 
   @@map("users")
 }
@@ -245,11 +247,11 @@ model Notification {
   postId    String?
   commentId String?
 
-  sender   User   @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
-  senderId String @map("sender_id")
+  sender   User @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId Int  @map("sender_id")
 
-  receiver   User   @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
-  receiverId String @map("receiver_id")
+  receiver   User @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId Int  @map("receiver_id")
 
   @@map("notifications")
 }
