@@ -1,6 +1,6 @@
-import {prisma} from "../models/prisma-client";
-import {BadRequest, Forbidden, NotFound} from "http-errors";
-import {ReadingStatus} from "@prisma/client";
+import { prisma } from "../models/prisma-client";
+import { BadRequest, Forbidden, NotFound } from "http-errors";
+import { ReadingStatus } from "@prisma/client";
 
 export interface CreateNovelInput {
   title: string;
@@ -57,7 +57,7 @@ export const getNovelById = async (id: number) => {
 };
 
 export const createNovel = async (data: CreateNovelInput) => {
-  return prisma.novel.create({
+  const novel = await prisma.novel.create({
     data: {
       author: data.author,
       coverImageUrl: data.coverImageUrl,
@@ -73,8 +73,8 @@ export const createNovel = async (data: CreateNovelInput) => {
             connect: {
               id: data.userId,
             },
-          }
-        }
+          },
+        },
       },
       user: {
         connect: {
@@ -96,7 +96,18 @@ export const createNovel = async (data: CreateNovelInput) => {
           : undefined,
       },
     },
+    include: {
+      rating: true,
+      genres: true,
+      tags: true,
+    },
   });
+  return {
+    ...novel,
+    genres: novel?.genres.map((genre) => genre.genreId),
+    rating: novel?.rating[0]?.score,
+    tags: novel?.tags?.map((tag) => tag.tagId),
+  };
 };
 
 export const updateNovel = async (
@@ -119,67 +130,82 @@ export const updateNovel = async (
 
   if (!novel) throw new NotFound("Novel not found");
 
-  if (novel.userId !== data.userId)
+  if (novel.userId !== data.userId) {
     throw new Forbidden("You are not allowed to update this novel.");
+  }
 
-  return prisma.novel.update({
-    where: {
-      id,
-      user: {
-        id: data.userId,
+  const updatedNovel = await prisma.$transaction(async (tx) => {
+    await tx.novel.update({
+      where: {
+        id,
+        user: {
+          id: data.userId,
+        },
       },
-    },
-    data: {
-      author: data.author,
-      coverImageUrl: data.coverImageUrl,
-      currentChapter: data.currentChapter,
-      rating: {
-        update: {
-          data: {
-            score: data.rating,
+      data: {
+        author: data.author,
+        coverImageUrl: data.coverImageUrl,
+        currentChapter: data.currentChapter,
+        sourceUrl: data.sourceUrl,
+        status: data.status,
+        totalChapters: data.totalChapters,
+        title: data.title,
+        genres: {
+          deleteMany: {},
+          create: data.genreIds?.length
+            ? data.genreIds.map((id) => ({
+                genre: { connect: { id } },
+              }))
+            : undefined,
+        },
+      },
+    });
+
+    await tx.rating.upsert({
+      where: {
+        userId_novelId: {
+          userId: data.userId!,
+          novelId: id,
+        },
+      },
+      update: {
+        score: data.rating,
+      },
+      create: {
+        novelId: id,
+        userId: data.userId!,
+        score: data.rating,
+      },
+    });
+    const novel = await tx.novel.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        rating: true,
+        tags: true,
+        genres: {
+          include: {
+            genre: true,
           },
-          where: {
-            userId_novelId: {
-              novelId: id,
-              userId: data.userId,
-            }
-          }
-        },
-        create: {
-          score: data.rating,
-          user: {
-            connect: {
-              id: data.userId,
-            },
-          }
-        }
-      },
-      sourceUrl: data.sourceUrl,
-      status: data.status,
-      totalChapters: data.totalChapters,
-      title: data.title,
-      genres: {
-        deleteMany: {},
-        create: data.genreIds?.length
-          ? data.genreIds.map((id) => ({
-              genre: { connect: { id } },
-            }))
-          : undefined,
-      },
-    },
-    include: {
-      genres: {
-        include: {
-          genre: true,
-        },
-        omit: {
-          novelId: true,
-          genreId: true,
-          id: true,
+          omit: {
+            novelId: true,
+            genreId: true,
+            id: true,
+          },
         },
       },
-    },
+    });
+
+    return novel;
   });
+
+  return {
+    ...updatedNovel,
+    genres: updatedNovel?.genres.map((genre) => genre.genre),
+    rating: updatedNovel?.rating[0]?.score,
+    tags: updatedNovel?.tags?.map((tag) => tag.tagId),
+  };
 };
 
 export const deleteNovel = (id: number) => {

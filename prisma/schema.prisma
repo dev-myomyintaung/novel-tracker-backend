@@ -141,9 +141,9 @@ model Rating {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  novel   Novel @relation(references: [id], fields: [novelId])
+  novel   Novel @relation(references: [id], fields: [novelId], onDelete: Cascade)
   novelId Int   @map("novel_id")
-  user    User  @relation(references: [id], fields: [userId])
+  user    User  @relation(references: [id], fields: [userId], onDelete: Cascade)
   userId  Int   @map("user_id")
 
   @@unique([userId, novelId])

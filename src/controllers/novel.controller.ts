@@ -1,4 +1,4 @@
-import {NextFunction, Request, Response} from "express";
+import { NextFunction, Request, Response } from "express";
 import * as NovelService from "../services/novel.service";
 
 export const getNovels = async (
@@ -61,7 +61,10 @@ export const createNovel = async (
       userId: user?.id,
       tagIds: tags,
     });
-    res.status(201).json(novel);
+    res.status(201).json({
+      data: novel,
+      message: "Novel created successfully",
+    });
   } catch (err) {
     next(err);
   }
@@ -100,7 +103,10 @@ export const updateNovel = async (
       userId: user?.id,
       tagIds: tags,
     });
-    res.json(novel);
+    res.json({
+      data: novel,
+      message: "Novel updated successfully",
+    });
   } catch (err) {
     next(err);
   }
@@ -114,7 +120,7 @@ export const deleteNovel = async (
   try {
     const id = Number(req.params.id);
     await NovelService.deleteNovel(id);
-    res.json({ message: "Novel deleted" });
+    res.json({ message: "Novel deleted successfully" });
   } catch (err) {
     next(err);
   }
