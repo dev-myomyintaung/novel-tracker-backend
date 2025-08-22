@@ -48,7 +48,10 @@ export const createNote = async (
       novelId: Number(novelId),
       userId: user?.id,
     });
-    res.status(201).json(note);
+    res.status(201).json({
+      data: note,
+      message: "Note created successfully",
+    });
   } catch (err) {
     next(err);
   }
@@ -69,7 +72,10 @@ export const updateNote = async (
       userId: user?.id,
       noteId: Number(noteId),
     });
-    res.json(note);
+    res.json({
+      data: note,
+      message: "Note updated successfully",
+    });
   } catch (err) {
     next(err);
   }

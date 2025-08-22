@@ -130,8 +130,6 @@ export const updateNovel = async (
 
   if (!novel) throw new NotFound("Novel not found");
 
-  console.log(novel.userId, data.userId);
-
   if (novel.userId !== data.userId) {
     throw new Forbidden("You are not allowed to update this novel.");
   }
@@ -162,14 +160,20 @@ export const updateNovel = async (
         },
       },
     });
-    await tx.rating.update({
+
+    await tx.rating.upsert({
       where: {
         userId_novelId: {
           userId: data.userId!,
           novelId: id,
         },
       },
-      data: {
+      update: {
+        score: data.rating,
+      },
+      create: {
+        novelId: id,
+        userId: data.userId!,
         score: data.rating,
       },
     });
