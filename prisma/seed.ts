@@ -13,21 +13,21 @@ async function main() {
     // await prisma.user.deleteMany();
 
     // 2️⃣ PREPARE ONE HASHED PASSWORD
-    const DEFAULT_PW = 'Password123';
-    const hashedPassword = await argon2.hash(DEFAULT_PW);
+    // const DEFAULT_PW = 'Password123';
+    // const hashedPassword = await argon2.hash(DEFAULT_PW);
 
     // 3️⃣ SEED ADMIN USER ONLY
-    await prisma.user.create({
-        data: {
-            firstName: 'Admin',
-            lastName:  'User',
-            email:     'admin@example.com',
-            password:  hashedPassword,
-            isAdmin:   true,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        },
-    });
+    // await prisma.user.create({
+    //     data: {
+    //         firstName: 'Admin',
+    //         lastName:  'User',
+    //         email:     'admin@example.com',
+    //         password:  hashedPassword,
+    //         isAdmin:   true,
+    //         createdAt: new Date(),
+    //         updatedAt: new Date(),
+    //     },
+    // });
 
     // 4️⃣ SEED GLOBAL GENRES (40+)
     const genreNames = [
@@ -47,7 +47,6 @@ async function main() {
         skipDuplicates: true,
     });
 
-    console.log('✅  Seed complete: admin user and genres only.');
 }
 
 main()

@@ -57,6 +57,26 @@ app.use('/api/v1/me', authenticateToken, async (req: Request, res: Response) => 
     res.json(user);
 });
 
+app.get('/api/v1/seed', async (req: Request, res: Response) => {
+    const genreNames = [
+        'Fantasy', 'Sci-Fi', 'Romance', 'Mystery', 'Horror', 'Thriller',
+        'Non-Fiction', 'Biography', 'Self-Help', 'Historical', 'Poetry',
+        'Graphic Novel', 'Adventure', 'Classics', 'Crime', 'Drama', 'Humor',
+        "Children's", 'Young Adult', 'Philosophy', 'Science', 'Technology',
+        'Travel', 'Health', 'Business', 'Cooking', 'Art', 'Music', 'Religion',
+        'Politics', 'Sports', 'Education', 'Psychology', 'Anthology',
+        'Short Stories', 'Essays', 'Memoir', 'Satire', 'Horror Comedy',
+        'Western', 'LGBTQ+', 'Urban Fiction', 'Contemporary', 'Dystopian',
+        'Steampunk', 'Paranormal', 'Military Fiction', 'Gothic'
+    ];
+    await prisma.$connect();
+    await prisma.genre.createMany({
+        data: genreNames.map(name => ({ genreName: name })),
+        skipDuplicates: true,
+    });
+    await prisma.$disconnect()
+})
+
 app.use(errorHandler);
 
 export default app;
