@@ -31,12 +31,13 @@ model User {
   accounts             Account[]
   ratings              Rating[]
   posts                Post[]
-  likes                Like[]
   comments             Comment[]
   following            Follow[]       @relation("UserFollowing")
   followers            Follow[]       @relation("UserFollowers")
   sentNotifications    Notification[] @relation("NotificationSender")
   receiveNotifications Notification[] @relation("NotificationReceiver")
+  commentLike          CommentLike[]  @relation("UserLikedComments")
+  postLikes            PostLike[]     @relation("UserLikedPosts")
 
   @@map("users")
 }
@@ -162,17 +163,17 @@ model Post {
   id          Int      @id @default(autoincrement())
   content     String?  @db.Text
   imageUrls   String[] @map("image_urls")
-  isPublished Boolean  @map("is_published")
+  isPublished Boolean? @default(true) @map("is_published")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Author
-  auther   User @relation(references: [id], fields: [authorId])
+  author   User @relation(references: [id], fields: [authorId])
   authorId Int  @map("author_id")
 
   // Interactions
-  likes    Like[]
   comments Comment[]
+  PostLike PostLike[]
 
   @@map("posts")
 }
@@ -192,32 +193,42 @@ model Comment {
   postId Int  @map("post_id")
 
   // Nested replies
-  parent   Comment?  @relation("CommentReplies", references: [id], fields: [parentId])
-  parentId Int?      @map("parent_id")
-  replies  Comment[] @relation("CommentReplies")
-  Like     Like[]
+  parent      Comment?      @relation("CommentReplies", references: [id], fields: [parentId])
+  parentId    Int?          @map("parent_id")
+  replies     Comment[]     @relation("CommentReplies")
+  CommentLike CommentLike[]
 
   @@map("comments")
 }
 
-model Like {
+model PostLike {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now()) @map("created_at")
 
   // Acting User
-  user   User @relation(references: [id], fields: [userId])
-  userId Int  @map("user_id")
+  user   User @relation("UserLikedPosts", references: [id], fields: [userId])
+  userId Int
 
-  // Target (Post or Comment)
-  post   Post? @relation(references: [id], fields: [postId], onDelete: Cascade)
-  postId Int?  @map("post_id")
-
-  comment   Comment @relation(references: [id], fields: [commentId])
-  commentId Int     @map("comment_id")
+  post   Post @relation(references: [id], fields: [postId])
+  postId Int
 
   @@unique([userId, postId])
+  @@map("post_likes")
+}
+
+model CommentLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Acting User
+  user   User @relation("UserLikedComments", references: [id], fields: [userId])
+  userId Int
+
+  comment   Comment @relation(references: [id], fields: [commentId])
+  commentId Int
+
   @@unique([userId, commentId])
-  @@map("likes")
+  @@map("comment_likes")
 }
 
 // Follow System
