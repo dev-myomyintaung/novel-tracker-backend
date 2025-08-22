@@ -75,6 +75,9 @@ app.get('/api/v1/seed', async (req: Request, res: Response) => {
         skipDuplicates: true,
     });
     await prisma.$disconnect()
+    res.json({
+        message: 'seeded'
+    })
 })
 
 app.use(errorHandler);
