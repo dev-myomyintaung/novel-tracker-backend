@@ -1,11 +1,25 @@
-import {Response, Request, NextFunction} from 'express';
-import postService from "../services/post.service";
+import {Request, Response, NextFunction} from "express";
+import postsService from "./posts.service";
+
+const getPostById = async (req: Request, res: Response, next: NextFunction) => {
+    try{
+        const {user} = req;
+        const {id} = req.params;
+        const post = await postsService.getPostById(+id!)
+        res.json({
+            data: post
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
 
 async function createPost(req: Request, res: Response, next: NextFunction){
     try {
         const {user} = req;
         const {content, imageUrls, isPublished} = req.body;
-        const post = await postService.createPost({
+        const post = await postsService.createPost({
             authorId: user?.id!,
             content,
             imageUrls,
@@ -25,7 +39,7 @@ async function updatePost(req: Request, res: Response, next: NextFunction){
         const {user} = req;
         const {id} = req.params;
         const {content, imageUrls, isPublished} = req.body;
-        const post = await postService.updatePost(+id, {
+        const post = await postsService.updatePost(+id, {
             content,
             imageUrls,
             isPublished
@@ -40,7 +54,9 @@ async function updatePost(req: Request, res: Response, next: NextFunction){
     }
 }
 
+
 export default {
+    getPostById,
     createPost,
     updatePost
-};
+}

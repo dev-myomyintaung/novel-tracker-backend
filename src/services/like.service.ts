@@ -1,5 +1,5 @@
-import postService from "./post.service";
 import {prisma} from "../models/prisma-client";
+import postsService from "../modules/posts/posts.service";
 
 interface LikePayload {
     postId: number;
@@ -7,7 +7,7 @@ interface LikePayload {
 }
 
 const likePost = async ({postId, userId}: LikePayload)=>{
-    await postService.getPostById(postId)
+    await postsService.getPostById(postId)
 
     return prisma.like.create({
         data: {
@@ -26,7 +26,7 @@ const likePost = async ({postId, userId}: LikePayload)=>{
 }
 
 const unlikePost = async ({postId, userId}: LikePayload)=>{
-    await postService.getPostById(postId)
+    await postsService.getPostById(postId)
 
     return prisma.like.delete({
         where: {

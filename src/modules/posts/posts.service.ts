@@ -1,5 +1,5 @@
-import {prisma, Prisma}  from "../models/prisma-client";
 import {NotFound} from "http-errors";
+import {prisma} from "../../models/prisma-client";
 
 interface PostPayload {
     authorId: number;
@@ -27,6 +27,9 @@ async function getPostById(id?: number) {
     const post = await prisma.post.findUnique({
         where: {
             id
+        },
+        include: {
+            comments: true
         }
     });
 

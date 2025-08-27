@@ -8,8 +8,9 @@ import TagRoute from "./routes/tag.route";
 import NoteRoute from "./routes/note.route";
 import NovelRoute from "./routes/novel.route";
 import UserRoute from "./routes/user.route";
-import PostRoute from './routes/post.route';
 import LikeRoute from './routes/like.route';
+import CommentRoute from './modules/comments/comments.route'
+import PostsRoute  from "./modules/posts/posts.route";
 
 import dotenv from "dotenv";
 import authenticateToken from "./middlewares/authenticate-token";
@@ -55,8 +56,9 @@ app.use("/api/v1/tags", authenticateToken, TagRoute);
 app.use("/api/v1/notes", authenticateToken, NoteRoute);
 app.use("/api/v1/novels", authenticateToken, NovelRoute);
 app.use('/api/v1/user', authenticateToken, UserRoute);
-app.use("/api/v1/posts", authenticateToken, PostRoute);
 app.use("/api/v1/like", authenticateToken, LikeRoute);
+app.use('/api/v1/comments', authenticateToken, CommentRoute)
+app.use('/api/v1/posts', authenticateToken, PostsRoute)
 
 app.use('/api/v1/me', authenticateToken, async (req: Request, res: Response) => {
     const { user } = req;
