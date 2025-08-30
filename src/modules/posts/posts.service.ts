@@ -27,9 +27,6 @@ async function getPostById(id?: number) {
     const post = await prisma.post.findUnique({
         where: {
             id
-        },
-        include: {
-            comments: true
         }
     });
 

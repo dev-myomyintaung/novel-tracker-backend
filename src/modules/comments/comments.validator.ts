@@ -1,5 +1,5 @@
 import {validate} from "../../middlewares/validator/validate";
-import {body} from "express-validator";
+import {body, param} from "express-validator";
 
 export const validateCreateComment = validate([
     body('content')
@@ -8,3 +8,11 @@ export const validateCreateComment = validate([
     body('postId')
         .isInt().withMessage('Invalid post ID')
 ]);
+
+export const validateGetCommentsByPost = validate([
+    param('postId').isInt().withMessage('Post ID is required'),
+])
+
+export const validateDeleteComment = validate([
+    param('commentId').isInt().withMessage('Post ID is required'),
+])

@@ -25,6 +25,24 @@ const createComment = ({content, authorId, postId}: CommentPayload) => {
     })
 };
 
+const getCommentsByPost = (postId: number) => {
+    return prisma.comment.findMany({
+        where: {
+            postId: postId,
+        }
+    })
+}
+
+const deleteComment = (id: number) => {
+    return prisma.comment.delete({
+        where: {
+            id: id
+        }
+    })
+}
+
 export default {
     createComment,
+    getCommentsByPost,
+    deleteComment
 };
